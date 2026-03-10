@@ -85,6 +85,7 @@ const FirstRunSetup = ({ onComplete }: FirstRunSetupProps) => {
           apiKey: apiKey || undefined,
           baseUrl: baseUrl || undefined,
           supportsTools: true,
+          supportsReasoning: true,
         },
       ]);
       onComplete();

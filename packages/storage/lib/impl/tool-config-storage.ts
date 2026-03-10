@@ -67,7 +67,7 @@ const defaultEnabledTools: Record<string, boolean> = {
   spawn_subagent: true,
   list_subagents: true,
   kill_subagent: true,
-  execute_javascript: false,
+  execute_javascript: true,
   gmail_search: false,
   gmail_read: false,
   gmail_send: false,
