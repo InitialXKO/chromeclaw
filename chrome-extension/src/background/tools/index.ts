@@ -64,7 +64,7 @@ import {
   executeRename,
 } from './workspace';
 import { createLogger } from '../logging/logger-buffer';
-import { DOCUMENTS_ENABLED, DEBUGGER_TOOL_ENABLED } from '@extension/env';
+import { DOCUMENTS_ENABLED, DEBUGGER_TOOL_ENABLED, MCP_ENABLED } from '@extension/env';
 import { toolConfigStorage, activeAgentStorage, getAgent } from '@extension/storage';
 import { Type } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
@@ -72,6 +72,7 @@ import type { ScreenshotResult } from './browser';
 import type { AgentTool } from '../agents';
 import type { ToolConfig, CustomToolDef } from '@extension/storage';
 import type { TObject } from '@sinclair/typebox';
+import { mcpToolSchema, executeMcpTool } from './mcp';
 
 const toolLog = createLogger('tool');
 
@@ -124,6 +125,9 @@ toolLookup.set('drive_search', args => executeDriveSearch(args as any));
 toolLookup.set('drive_read', args => executeDriveRead(args as any));
 toolLookup.set('drive_create', args => executeDriveCreate(args as any));
 toolLookup.set('debugger', args => executeDebugger(args as any));
+if (MCP_ENABLED) {
+  toolLookup.set('mcp_tool', args => executeMcpTool(args as any));
+}
 
 const schemaLookup = new Map<string, TObject>([
   ['web_search', webSearchSchema],
@@ -157,6 +161,7 @@ const schemaLookup = new Map<string, TObject>([
   ['drive_read', driveReadSchema],
   ['drive_create', driveCreateSchema],
   ['debugger', debuggerSchema],
+  ...(MCP_ENABLED ? ([['mcp_tool', mcpToolSchema]] as [string, TObject][]) : []),
 ]);
 
 /** Build a TypeBox schema from custom tool param definitions */
@@ -612,6 +617,41 @@ const getAgentTools = async (opts?: {
       execute: async (_toolCallId, params) => {
         const result = await executeDebugger(params as any);
         return { content: [{ type: 'text', text: result }], details: { output: result } };
+      },
+    });
+  }
+
+  // MCP tool — gated by feature flag
+  if (MCP_ENABLED && isEnabled('mcp_tool')) {
+    const { mcpConfigStorage } = await import('@extension/storage');
+    const mcpConfig = await mcpConfigStorage.get();
+
+    // Build available MCP tools list for the description
+    const enabledMcpTools: string[] = [];
+    for (const server of mcpConfig.servers) {
+      for (const toolName of server.enabledTools) {
+        enabledMcpTools.push(`${server.name}.${toolName}`);
+      }
+    }
+
+    const mcpToolsDescription =
+      enabledMcpTools.length > 0
+        ? ` Available tools: ${enabledMcpTools.join(', ')}`
+        : ' No MCP tools are currently enabled. Configure MCP servers in settings to enable tools.';
+
+    tools.push({
+      name: 'mcp_tool',
+      label: 'MCP Tool',
+      description:
+        'Execute tools from configured MCP (Model Context Protocol) servers. Requires server ID, tool name, and arguments.' +
+        mcpToolsDescription,
+      parameters: mcpToolSchema,
+      execute: async (_toolCallId, params) => {
+        const result = await executeMcpTool(params as any);
+        return {
+          content: result.content,
+          details: { isError: result.isError },
+        };
       },
     });
   }

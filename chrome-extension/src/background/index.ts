@@ -23,8 +23,9 @@ import {
 import { runSessionJournal } from './memory/memory-journal';
 import { handleLLMStream } from './agents/stream-handler';
 import { setCronServiceRef } from './tools/scheduler';
-import { getScheduledTask } from '@extension/storage';
+import { getScheduledTask, mcpConfigStorage } from '@extension/storage';
 import type { LLMRequestMessage } from '@extension/shared';
+import { MCP_ENABLED } from '@extension/env';
 
 // ── Loggers ─────────────────────────────────
 const cronLog = createLogger('cron');
@@ -297,6 +298,25 @@ const messageHandlers: Record<string, MessageHandler> = {
     } catch (err) {
       slashCmdLog.error('Compaction failed', { chatId, error: String(err) });
       throw err;
+    }
+  },
+
+  MCP_DISCOVER_TOOLS: async (request) => {
+    if (!MCP_ENABLED) return { ok: false, error: 'MCP is disabled' };
+    const serverId = request.serverId as string;
+    if (!serverId) return { ok: false, error: 'serverId is required' };
+
+    const config = await mcpConfigStorage.get();
+    const server = config.servers.find(s => s.id === serverId);
+    if (!server) return { ok: false, error: 'Server not found' };
+
+    try {
+      const { listTools } = await import('./tools/mcp');
+      const tools = await listTools(server);
+      return { ok: true, tools: tools.map(t => ({ name: t.name, description: t.description ?? '', inputSchema: t.inputSchema ?? {} })) };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      return { ok: false, error: errorMessage };
     }
   },
 };

@@ -55,6 +55,7 @@ const defaultModelIds: Record<string, string> = {
   anthropic: 'claude-sonnet-4-5-20250929',
   google: 'gemini-2.0-flash',
   openrouter: 'openai/gpt-4o',
+  cursor: 'cursor-claude-3.5-sonnet',
   custom: '',
   local: 'onnx-community/Qwen3-0.6B-ONNX',
 };
@@ -85,6 +86,7 @@ const providers = [
   { value: 'anthropic', label: 'Anthropic' },
   { value: 'google', label: 'Google' },
   { value: 'openrouter', label: 'OpenRouter' },
+  { value: 'cursor', label: 'Cursor' },
   { value: 'custom', label: 'OpenAI Compatible' },
   ...(WEBGPU_MODELS_ENABLED ? [{ value: 'local', label: 'WebGPU (On-Device)' }] : []),
 ];

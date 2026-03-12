@@ -79,6 +79,7 @@ const defaultEnabledTools: Record<string, boolean> = {
   drive_search: false,
   drive_read: false,
   drive_create: false,
+  mcp_tool: true,
 };
 
 const defaultToolConfig: ToolConfig = {

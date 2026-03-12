@@ -94,7 +94,7 @@ interface SessionUsage {
 }
 
 /** Provider identifiers */
-type ModelProvider = 'openai' | 'anthropic' | 'google' | 'openrouter' | 'custom' | 'local';
+type ModelProvider = 'openai' | 'anthropic' | 'google' | 'openrouter' | 'cursor' | 'custom' | 'local';
 
 /** Routing mode for model requests */
 type RoutingMode = 'direct';

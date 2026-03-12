@@ -1,4 +1,4 @@
-import { DOCUMENTS_ENABLED, DEBUGGER_TOOL_ENABLED } from '@extension/env';
+import { DOCUMENTS_ENABLED, DEBUGGER_TOOL_ENABLED, MCP_ENABLED } from '@extension/env';
 
 /**
  * Tool registry metadata — shared between background SW and UI.
@@ -459,11 +459,38 @@ Summarize the key points naturally — do not just say "the subagent finished."`
       },
     ],
   },
+  {
+    groupKey: 'mcp',
+    label: 'MCP Tools',
+    iconName: 'PlugIcon',
+    hasSubConfig: true,
+    promptHint: `## MCP (Model Context Protocol) Tools
+
+You have access to MCP servers that provide additional tools via the Model Context Protocol.
+
+**Usage:**
+- Use \`mcp_tool\` to execute tools from configured MCP servers
+- Each tool call requires: \`server\` (server ID), \`tool\` (tool name), and \`args\` (arguments object)
+
+**Important:**
+- Only tools explicitly enabled by the user can be called
+- Tools may have different capabilities depending on the server configuration
+- Tool results may be truncated based on configured limits`,
+    tools: [
+      {
+        name: 'mcp_tool',
+        label: 'MCP Tool',
+        description: 'Execute tools from configured MCP (Model Context Protocol) servers',
+        defaultEnabled: true,
+      },
+    ],
+  },
 ] as const;
 
 const filteredToolRegistryMeta: readonly ToolGroupMeta[] = toolRegistryMeta.filter(g => {
   if (g.groupKey === 'documents' && !DOCUMENTS_ENABLED) return false;
   if (g.groupKey === 'debugger' && !DEBUGGER_TOOL_ENABLED) return false;
+  if (g.groupKey === 'mcp' && !MCP_ENABLED) return false;
   return true;
 });
 
