@@ -27,3 +27,11 @@ export {
   type EmbeddingConfig,
   type EmbeddingProviderType,
 } from './embedding-config-storage.js';
+export {
+  mcpConfigStorage,
+  type McpConfig,
+  type McpServerConfig,
+  type McpToolDescriptor,
+  type McpToolPolicy,
+  type McpTransportType,
+} from './mcp-config-storage.js';

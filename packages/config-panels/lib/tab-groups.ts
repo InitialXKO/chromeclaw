@@ -11,6 +11,7 @@ import {
   ClockIcon,
   BotIcon,
   MessagesSquareIcon,
+  PlugIcon,
 } from 'lucide-react';
 
 type ConfigTabId =
@@ -24,7 +25,8 @@ type ConfigTabId =
   | 'cron'
   | 'sessions'
   | 'usage'
-  | 'logs';
+  | 'logs'
+  | 'mcp';
 
 type ConfigTabGroup = {
   label: string;
@@ -46,6 +48,7 @@ const getConfigTabGroups = (): ConfigTabGroup[] => [
     tabs: [
       { id: 'agents', label: t('tab_agents'), icon: BotIcon },
       { id: 'tool', label: t('tab_tools'), icon: WrenchIcon },
+      { id: 'mcp', label: t('tab_mcp'), icon: PlugIcon },
       { id: 'skills', label: t('tab_skills'), icon: ZapIcon },
     ],
   },
