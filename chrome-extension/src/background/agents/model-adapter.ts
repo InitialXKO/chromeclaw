@@ -17,6 +17,7 @@ const DEFAULT_BASE_URLS: Record<string, string> = {
   anthropic: 'https://api.anthropic.com',
   google: 'https://generativelanguage.googleapis.com',
   openrouter: 'https://openrouter.ai/api/v1',
+  cursor: 'https://api.cursor.com/v1',
 };
 
 export const chatModelToPiModel = (config: ChatModel): ResolvedModel => {
@@ -45,6 +46,11 @@ export const chatModelToPiModel = (config: ChatModel): ResolvedModel => {
       api = 'openai-completions';
       baseUrl = DEFAULT_BASE_URLS.openrouter;
       provider = 'openrouter';
+      break;
+    case 'cursor':
+      api = 'openai-completions';
+      baseUrl = DEFAULT_BASE_URLS.cursor;
+      provider = 'cursor';
       break;
     case 'custom':
       api = 'openai-completions';
